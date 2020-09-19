@@ -1,5 +1,31 @@
 
-<!DOCTYPE html>
+<?php
+include("./conectar.php");
+$sql = "SELECT * FROM taricbot";
+$do = mysqli_query($link, $sql);
+?><?php 
+if(isset($_POST["frase"])){
+$mensaje = $_POST["frase"];
+$telegram = 614087009;
+$frases = ["Por la montraña", "Por el brillo de sus ojos","Soy... El aspecto del protector. Soy TARIC!"];
+$path = "https://api.telegram.org/bot1304228002:AAECazvL_R-qOpffA6cJbOgv1RMyxEZnbYI";
+    file_get_contents($path."/sendmessage?chat_id=".$telegram."&text=$mensaje");
+
+}
+if(isset($_POST["frasecilla"])){
+    $frase = $_POST["frasecilla"];
+    $audio = $_POST["audio"];
+    $sql = "INSERT INTO taricbot (id, texto, audio) VALUES (null, '$frase', '$audio')";
+    if($do = mysqli_query($link, $sql))
+    {
+        header("Location: ".$_SERVER['HTTP_REFERER']);
+    }else
+    {
+        echo mysqli_error($do);
+        exit;
+    }
+}
+?><!DOCTYPE html>
 <html>
 
 <head>
@@ -22,12 +48,28 @@
                 </nav>
                 <div class="container-fluid">
                     <div class="text-center mt-5">
+                        <form method="POST">
+                            <div class="form-group"><label for="address"><strong>Frase</strong></label>
+                            <input type="text" class="form-control" require="" placeholder="La muerte es como el viento..." name="frasecilla" id=""><br>
+                            <div class="form-group"><label for="address"><strong>URL Audio (en mp3)</strong></label>
+                            <input type="text" class="form-control" require="" placeholder="Pega el url del audio en mp3" name="audio"> <br>
+                            <button type="submit" style="margin-bottom: 20px;" class="btn btn-primary btn-block text-white btn-user">Enviar</button>
+                        </form>
                         <img src="https://pm1.narvii.com/6241/a0c8e9e087cc4897372231dc0911871e695dc63c_00.jpg" alt="">
                     </div>
-                </div>
-                <form method="POST">
-                    <button name="0" value="Por la montaña">Por la montaña</button>
-                </form>
+                </div><?php
+                while($row = mysqli_fetch_assoc($do))
+                {
+                    echo'<audio 
+                    controls
+                    src="'.$row["audio"].'">
+                </audio>
+                    <form method="POST" class="text-center" style="margin: 10px">
+                        <button class="btn btn-primary" name="frase" value="'.$row["texto"].'">'.$row["texto"].'</button>
+                        
+                    </form>'; 
+                }
+                ?>
             </div>
             <footer class="bg-white sticky-footer">
                 <div class="container my-auto">
@@ -43,13 +85,3 @@
 </body>
 
 </html>
-<?php 
-if(isset($_POST["frase"])){
-$mensaje = $_POST["frase"];
-$telegram = 614087009;
-$frases = ["Por la montraña", "Por el brillo de sus ojos","Soy... El aspecto del protector. Soy TARIC!"];
-$path = "https://api.telegram.org/bot1304228002:AAECazvL_R-qOpffA6cJbOgv1RMyxEZnbYI";
-    file_get_contents($path."/sendmessage?chat_id=".$telegram."&text=$mensaje");
-
-}
-?>
